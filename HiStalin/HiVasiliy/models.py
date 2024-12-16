@@ -5,6 +5,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import MaxValueValidator, MinValueValidator
+from multiselectfield import MultiSelectField
+
+STATUS_CHOICES = (
+        ('pro', 'pro'),
+        ('simple', 'simple')
+    )
 
 
 class Profile(AbstractUser):
@@ -12,10 +18,6 @@ class Profile(AbstractUser):
                                            validators=[MinValueValidator(18), MaxValueValidator(80)])
     phone_number = PhoneNumberField(null=True, blank=True, region='KG')
     data_register = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    STATUS_CHOICES = (
-        ('pro', 'pro'),
-        ('simple', 'simple')
-    )
     status = models.CharField(choices=STATUS_CHOICES, max_length=16, default='simple')
 
     def __str__(self):
@@ -59,31 +61,25 @@ class Genre(models.Model):
 
 
 class Movie(models.Model):
-    movie_name = models.CharField(verbose_name = 'Название фильма',max_length=32, unique=True)
-    year = models.PositiveSmallIntegerField(verbose_name='Дата выхода',
-                                            validators=[MinValueValidator(2010),
-                                            MaxValueValidator(datetime.now().year)])
-    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='movies')
-    director = models.ManyToManyField(Director, verbose_name='Режисеры', related_name='movies')
-    actor = models.ManyToManyField(Actor, verbose_name='Актеры', related_name='movies')
-    genre = models.ManyToManyField(Genre, verbose_name='Жанры', related_name='movies_genres')
-    VIDEO_QUALITY_CHOICES = (
-        ('144', '144'),
-        ('360', '360'),
-        ('480', '480'),
-        ('720', '720'),
-        ('1080', '1080')
+    movie_name = models.CharField(max_length=80)
+    year = models.DateField()
+    country = models.ManyToManyField(Country)
+    director = models.ManyToManyField(Director)
+    actor = models.ManyToManyField(Actor, related_name='actor_films')
+    genre = models.ManyToManyField(Genre)
+    TYPES_CHOICES = (
+        ('144p', '144p'),
+        ('360p', '360p'),
+        ('480p', '480p'),
+        ('720p', '720p'),
+        ('1080p', '1080p')
     )
-    types = models.CharField(choices=VIDEO_QUALITY_CHOICES, max_length=16, default='720')
-    movie_time = models.PositiveIntegerField(verbose_name='Длительность (мин)', null=False, blank=False)
+    types = MultiSelectField(max_length=16, choices=TYPES_CHOICES, max_choices=5)
+    movie_time = models.PositiveSmallIntegerField()
     description = models.TextField()
-    movie_trailer = models.FileField(upload_to='movie_trailers/', null=False, blank=False)
-    movie_image = models.FileField(upload_to='movie_images/', null=False, blank=False)
-    STATUS_CHOICES = (
-        ('pro', 'pro'),
-        ('simple', 'simple')
-    )
-    status_movie = models.CharField(choices=STATUS_CHOICES, max_length=16, default='simple')
+    movie_trailer = models.FileField(upload_to='movie_trailer/')
+    movie_image = models.ImageField(upload_to='movie_images/')
+    status_movie = models.CharField(max_length=16, choices=STATUS_CHOICES, default='simple')
 
 
     def __str__(self):

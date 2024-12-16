@@ -62,9 +62,9 @@ class CountryViewSet(viewsets.ModelViewSet):
     serializer_class = CountrySerializer
 
 
-class DirectoryViewSet(viewsets.ModelViewSet):
+class DirectorViewSet(viewsets.ModelViewSet):
     queryset = Director.objects.all()
-    serializer_class = DirectorySerializer
+    serializer_class = DirectorSerializer
 
 
 class ActorViewSet(viewsets.ModelViewSet):
@@ -92,45 +92,26 @@ class MomentsViewSet(viewsets.ModelViewSet):
     serializer_class = MomentsSerializer
 
 
-# class MovieListViewSet(viewsets.ModelViewSet):
-#     queryset = Movie.objects.all()
-#     serializer_class = MovieListSerializer
-#     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-#     filterset_class = MovieFilter
-#     search_fields = ['movie_name']
-#     ordering_fields = ['movie_name', 'year', 'country']
-#     permission_classes = [permissions.IsAuthenticatedOrReadOnly, CheckOwner]
-#
-#     def perform_create(self, serializer):
-#         serializer.save(owner=self.request.user)
-#
-#
-# class MovieDetailViewSet(viewsets.ModelViewSet):
-#     queryset = Movie.objects.all()
-#     serializer_class = MovieDetailSerializer
-#     permission_classes = [permissions.IsAuthenticatedOrReadOnly, CheckOwner]
-#
-#     def perform_create(self, serializer):
-#         serializer.save(owner=self.request.user)
-
-
-class MovieListView(APIView):
+class MovieListViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    queryset = Movie.objects.all()
+    serializer_class = MovieListSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = MovieFilter
+    search_fields = ['movie_name']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, CheckOwner]
+
 
     def get(self, request):
         movies = Movie.objects.all()
-        serializer = MovieSerializer(movies, many=True)
+        serializer = MovieListSerializer(movies, many=True)
         return Response(serializer.data)
 
 
-class MovieViewSet(viewsets.ModelViewSet):
+class MovieDetailViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
-    serializer_class = MovieSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = MovieFilter
-    search_fields = ['movie_name']
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = MovieDetailSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, CheckOwner]
 
 
 class FavoriteMovieViewSet(viewsets.ModelViewSet):

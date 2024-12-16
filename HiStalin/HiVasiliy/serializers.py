@@ -56,7 +56,7 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = ['country_name']
 
 
-class DirectorySerializer(serializers.ModelSerializer):
+class DirectorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Director
         fields = ['director_name']
@@ -94,18 +94,30 @@ class MomentsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MovieSerializer(serializers.ModelSerializer):
-    countries = CountrySerializer(many=True, read_only=True)
-    directors = DirectorySerializer(many=True, read_only=True)
-    actors = ActorSerializer(many=True, read_only=True)
-    genres = GenreSerializer(many=True, read_only=True)
+class MovieListSerializer(serializers.ModelSerializer):
+    country = CountrySerializer(many=True)
+    genre = GenreSerializer(many=True)
+    year =serializers.DateField(format('%m-%d-%Y'))
 
     class Meta:
         model = Movie
-        fields = [
-            'movie_name', 'movie_image', 'year', 'description', 'countries',
-            'directors', 'actors', 'genres', 'types', 'movie_time', 'status_movie'
-        ]
+        fields = ['id', 'movie_name', 'movie_image', 'year',
+                  'country', 'genre', 'status_movie']
+
+class MovieDetailSerializer(serializers.ModelSerializer):
+    country = CountrySerializer(many=True)
+    genre = GenreSerializer(many=True)
+    year =serializers.DateField(format('%m-%d-%Y'))
+    director = DirectorSerializer(many=True)
+    actor = ActorSerializer(many=True)
+    prop = MovieLanguagesSerializer(many=True, read_only=True)
+    moments = MomentsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Movie
+        fields = ['id', 'movie_name', 'movie_image', 'year',
+                  'country', 'genre', 'director', 'actor',
+                  'movie_time', 'description', 'movie_trailer', 'status_movie', 'prop', 'moments']
 
 
 class FavoriteMovieSerializer(serializers.ModelSerializer):
@@ -123,7 +135,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class HistorySerializer(serializers.ModelSerializer):
-    movie = MovieSerializer(read_only=True)
+    movie = MovieListSerializer(read_only=True)
     user = ProfileSerializer(read_only=True)
 
     class Meta:
